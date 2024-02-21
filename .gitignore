@@ -3,3 +3,4 @@
 infra/.terraform*
 infra/.terraform/*
 infra/terraform.tfstate*
+infra/dev.tfvars
