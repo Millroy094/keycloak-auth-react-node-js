@@ -13,6 +13,10 @@ resource "aws_db_instance" "keycloak_db" {
   }
 }
 
+resource "aws_cloudwatch_log_group" "keycloak_log_group" {
+  name = "keycloak-log-group"
+}
+
 resource "aws_ecs_cluster" "keycloak_cluster" {
   name = "keycloak-cluster"
 }
@@ -34,6 +38,7 @@ resource "aws_ecs_task_definition" "keycloak" {
       image     = "quay.io/keycloak/keycloak:latest"
       cpu       = 1024
       memory    = 2048
+
       essential = true
       portMappings = [
         {
@@ -41,6 +46,14 @@ resource "aws_ecs_task_definition" "keycloak" {
           hostPort      = 8080
         }
       ]
+      logConfiguration = {
+            logDriver = "awslogs"
+            options   = {
+                "awslogs-group"         = "${aws_cloudwatch_log_group.keycloak_log_group.name}"
+                "awslogs-region"        = var.aws_region
+                "awslogs-stream-prefix" = "ecs"
+            }
+        }
       environment = [
         {
           name  = "KC_DB"

@@ -27,9 +27,12 @@ resource "aws_lb_target_group" "keycloak_abl_tg" {
   protocol    = "HTTP"
   target_type = "ip"
   vpc_id      = aws_vpc.auth.id
-
+  
   health_check {
-    path     = "/auth/realms/master"
+    path     = "/health"
     protocol = "HTTP"
+    port     = "traffic-port"
+    matcher  = "200-399"
+    interval = 30
   }
 }
