@@ -29,6 +29,24 @@ resource "aws_subnet" "auth_subnet" {
   }
 }
 
+resource "aws_subnet" "auth_db_subnet" {
+  count                           = 2
+  vpc_id                          = aws_vpc.auth.id
+  availability_zone               = var.availability_zones[count.index]
+  cidr_block                      = cidrsubnet(aws_vpc.auth.cidr_block, 4, 4 + count.index)
+  ipv6_cidr_block                 = cidrsubnet(aws_vpc.auth.ipv6_cidr_block, 8, 4 + count.index)
+  assign_ipv6_address_on_creation = true
+}
+
+resource "aws_db_subnet_group" "keycloak_db_subnet_group" {
+  name       = "db-subnet-group"
+  subnet_ids = aws_subnet.auth_db_subnet.*.id
+
+  tags = {
+    Name = "Keycloak DB Subnets"
+  }
+}
+
 resource "aws_internet_gateway" "auth-gateway" {
   vpc_id = aws_vpc.auth.id
 
@@ -56,23 +74,4 @@ resource "aws_route_table_association" "subnet_association" {
   route_table_id = aws_route_table.auth-routing.id
 }
 
-resource "aws_security_group" "keycloak_sg" {
-  name   = "keycloak-sg"
-  vpc_id = aws_vpc.auth.id
 
-  # Default rule to allow inbound traffic from anywhere on port 80
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # Default rule to allow all outbound traffic
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
