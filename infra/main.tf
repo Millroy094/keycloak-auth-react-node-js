@@ -8,8 +8,8 @@ resource "aws_vpc" "auth" {
   enable_dns_support               = true
   enable_dns_hostnames             = true
   assign_generated_ipv6_cidr_block = true
-  cidr_block                       = "10.0.0.0/16"
 
+  cidr_block = "10.0.0.0/16"
   tags = {
     Name = "auth"
   }
@@ -45,6 +45,16 @@ resource "aws_db_subnet_group" "keycloak_db_subnet_group" {
   tags = {
     Name = "Keycloak DB Subnets"
   }
+}
+
+
+resource "aws_subnet" "auth_ecs_subnet" {
+  count                           = 2
+  vpc_id                          = aws_vpc.auth.id
+  availability_zone               = var.availability_zones[count.index]
+  cidr_block                      = cidrsubnet(aws_vpc.auth.cidr_block, 4, 8 + count.index)
+  ipv6_cidr_block                 = cidrsubnet(aws_vpc.auth.ipv6_cidr_block, 8, 8 + count.index)
+  assign_ipv6_address_on_creation = true
 }
 
 resource "aws_internet_gateway" "auth-gateway" {

@@ -4,6 +4,7 @@ resource "aws_lb" "keycloak_alb" {
   load_balancer_type = "application"
   security_groups    = [aws_security_group.keycloak_alb_sg.id]
   subnets            = aws_subnet.auth_subnet.*.id
+  ip_address_type    = "dualstack"
 
   tags = {
     Name = "keycloak-alb"
@@ -27,7 +28,6 @@ resource "aws_lb_target_group" "keycloak_abl_tg" {
   protocol    = "HTTP"
   target_type = "ip"
   vpc_id      = aws_vpc.auth.id
-  
   health_check {
     path     = "/health"
     protocol = "HTTP"

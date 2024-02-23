@@ -23,8 +23,8 @@ resource "aws_ecs_cluster" "keycloak_cluster" {
 
 resource "aws_ecs_task_definition" "keycloak" {
   family                   = "keycloak"
-  cpu                      = "1024"
-  memory                   = "2048"
+  cpu                      = "256"
+  memory                   = "512"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
@@ -34,10 +34,10 @@ resource "aws_ecs_task_definition" "keycloak" {
 
   container_definitions = jsonencode([
     {
-      name      = "keycloak-container"
-      image     = "quay.io/keycloak/keycloak:latest"
-      cpu       = 1024
-      memory    = 2048
+      name   = "keycloak-container"
+      image  = "quay.io/keycloak/keycloak:latest"
+      cpu    = 256
+      memory = 512
 
       essential = true
       portMappings = [
@@ -47,13 +47,13 @@ resource "aws_ecs_task_definition" "keycloak" {
         }
       ]
       logConfiguration = {
-            logDriver = "awslogs"
-            options   = {
-                "awslogs-group"         = "${aws_cloudwatch_log_group.keycloak_log_group.name}"
-                "awslogs-region"        = var.aws_region
-                "awslogs-stream-prefix" = "ecs"
-            }
+        logDriver = "awslogs"
+        options = {
+          "awslogs-group"         = "${aws_cloudwatch_log_group.keycloak_log_group.name}"
+          "awslogs-region"        = var.aws_region
+          "awslogs-stream-prefix" = "ecs"
         }
+      }
       environment = [
         {
           name  = "KC_DB"
@@ -102,7 +102,14 @@ resource "aws_ecs_task_definition" "keycloak" {
         {
           name  = "KC_HOSTNAME"
           value = aws_lb.keycloak_alb.dns_name
+        },
+        {
+          name  = "KC_FEATURES"
+          value = jsonencode(["token-exchange", "account-api", "admin-api"])
         }
+      ],
+      command = [
+        "start-dev"
       ]
     }
   ])
@@ -121,9 +128,8 @@ resource "aws_ecs_service" "keycloak_service" {
   }
 
   network_configuration {
-    subnets          = aws_subnet.auth_subnet.*.id
-    security_groups  = [aws_security_group.keycloak_service_sg.id]
-    assign_public_ip = true
+    subnets         = aws_subnet.auth_ecs_subnet.*.id
+    security_groups = [aws_security_group.keycloak_service_sg.id]
   }
 
   desired_count = 1
