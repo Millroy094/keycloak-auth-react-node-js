@@ -10,16 +10,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      DOCKER_TAG_VERSION: my-ecr-repo/quay.io/keycloak/keycloak:${{ github.event.inputs.version_keycloak }}
+
     steps:
       - uses: actions/checkout@v3
-      - name: Build Docker Image
-        run: |
-          docker build ./infra/container \
-          --tag ${{env.DOCKER_TAG_VERSION}}
-          echo "Docker image created: ${{env.DOCKER_TAG_VERSION}}" >> $GITHUB_STEP_SUMMARY
-          echo "image=${{env.DOCKER_TAG_VERSION}}" >> $GITHUB_OUTPUT
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -27,6 +20,16 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-west-2
       - name: Login to Amazon ECR
+        id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
-      - name: Docker Publish ECR ⬆️
-        run: docker push ${{env.DOCKER_TAG_VERSION}}
+      - name: Build Docker Image
+        id: docker-build
+        env:
+          DOCKER_TAG_VERSION: ${{steps.login-ecr.outputs.registry}}/keycloak:${{github.event.inputs.version_keycloak}}
+        run: |
+          docker build ./infra/container \
+          --tag ${{env.DOCKER_TAG_VERSION}}
+          echo "Docker image created: ${{env.DOCKER_TAG_VERSION}}" >> $GITHUB_STEP_SUMMARY
+          echo "image=${{env.DOCKER_TAG_VERSION}}" >> $GITHUB_OUTPUT
+      - name: Docker Publish ECR
+        run: docker push ${{steps.docker-build.outputs.image}}
