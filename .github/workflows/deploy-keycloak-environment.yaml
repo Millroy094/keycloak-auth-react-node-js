@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v3
       - name: Build Docker Image
         run: |
-          docker build . \
+          docker build ./infra/container \
           --tag ${{env.DOCKER_TAG_VERSION}}
           echo "Docker image created: ${{env.DOCKER_TAG_VERSION}}" >> $GITHUB_STEP_SUMMARY
           echo "image=${{env.DOCKER_TAG_VERSION}}" >> $GITHUB_OUTPUT
