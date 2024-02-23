@@ -2,7 +2,11 @@ name: Build & Deploy Keycloak Environment
 
 on:
   workflow_dispatch:
-
+    inputs:
+      version_keycloak:
+        description: Please Check Redhat base image to match the image version.
+        required: true
+        type: string
 jobs:
   build:
     runs-on: ubuntu-latest
