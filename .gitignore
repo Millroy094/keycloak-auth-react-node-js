@@ -1,6 +1,6 @@
 .vscode
 .vscode/*
-infra/.terraform*
-infra/.terraform/*
-infra/terraform.tfstate*
-infra/dev.tfvars
+*.terraform*
+*.terraform/*
+*terraform.tfstate*
+*dev.tfvars

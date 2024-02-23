@@ -10,7 +10,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v3
       - name: Configure AWS Credentials
@@ -27,7 +26,7 @@ jobs:
         env:
           DOCKER_TAG_VERSION: ${{steps.login-ecr.outputs.registry}}/keycloak:${{github.event.inputs.version_keycloak}}
         run: |
-          docker build ./infra/container \
+          docker build ./infra/registry/container \
           --tag ${{env.DOCKER_TAG_VERSION}}
           echo "Docker image created: ${{env.DOCKER_TAG_VERSION}}" >> $GITHUB_STEP_SUMMARY
           echo "image=${{env.DOCKER_TAG_VERSION}}" >> $GITHUB_OUTPUT
