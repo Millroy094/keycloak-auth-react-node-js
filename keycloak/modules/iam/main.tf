@@ -17,9 +17,38 @@ resource "aws_iam_role" "ecs_task_execution_role" {
 EOF
 }
 
+resource "aws_iam_policy" "ecs_task_execution_policy" {
+  name        = "ecs-task-execution-policy"
+  description = "Policy for ECS task execution role"
+  policy      = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+          "ecr:GetAuthorizationToken",
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:BatchGetImage",
+          "ecr:DescribeImages",
+          "ecr:ListImages",
+          "ecr:DescribeRepositories",
+          "ecr:GetRepositoryPolicy",
+          "ecr:InitiateLayerUpload",
+          "ecr:UploadLayerPart",
+          "ecr:CompleteLayerUpload"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+EOF
+}
+
 resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_attachment" {
   role       = aws_iam_role.ecs_task_execution_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+  policy_arn = aws_iam_policy.ecs_task_execution_policy.arn
 }
 
 resource "aws_iam_role" "ecs_task_role" {

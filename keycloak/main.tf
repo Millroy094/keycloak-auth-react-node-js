@@ -13,6 +13,15 @@ module "security_groups" {
   keycloak_vpc = module.vpc.keycloak_vpc
 }
 
+module "vpc_endpoint" {
+  source              = "./modules/vpc-endpoint"
+  aws_region          = var.aws_region
+  keycloak_vpc        = module.vpc.keycloak_vpc
+  keycloak_ecs_subnet = module.vpc.keycloak_ecs_subnet
+  private_keycloak_routing     = module.vpc.private_keycloak_routing
+  keycloak_vpc_endpoint_sg     = module.security_groups.keycloak_vpc_endpoint_sg
+}
+
 module "db" {
   source                   = "./modules/db"
   keycloak_db_subnet_group = module.vpc.keycloak_db_subnet_group
@@ -22,7 +31,7 @@ module "db" {
 module "alb" {
   source              = "./modules/alb"
   keycloak_vpc        = module.vpc.keycloak_vpc
-  keycloak_alb_subnet = module.subnet.keycloak_alb_subnet
+  keycloak_alb_subnet = module.vpc.keycloak_alb_subnet
   keycloak_alb_sg     = module.security_groups.keycloak_alb_sg
 }
 
@@ -43,7 +52,7 @@ module "ecs" {
   keycloak_ecs_sg         = module.security_groups.keycloak_ecs_sg
   keycloak_db             = module.db.keycloak_db
   keycloak_alb            = module.alb.keycloak_alb
-  keycloak_abl_tg         = module.alb.keycloak_abl_tg
+  keycloak_alb_tg         = module.alb.keycloak_alb_tg
 
-  depends_on = [ecr, db, alb]
+  depends_on = [module.ecr.keycloak, module.db.keycloak_db, module.alb.keycloak_alb]
 }

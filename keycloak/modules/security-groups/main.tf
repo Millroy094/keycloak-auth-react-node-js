@@ -59,6 +59,21 @@ resource "aws_security_group" "keycloak_ecs_sg" {
     protocol         = "-1"
     ipv6_cidr_blocks = ["::/0"]
   }
+
+}
+
+resource "aws_security_group" "keycloak_vpc_endpoint_sg" {
+  name_prefix = "keycloak-vpc-endpoint-sg"
+  description = "Associated to ECR/S3 VPC Endpoints"
+  vpc_id      = var.keycloak_vpc.id
+
+  ingress {
+    description     = "Allow Nodes to pull images from ECR via VPC endpoints"
+    protocol        = "tcp"
+    from_port       = 443
+    to_port         = 443
+    security_groups = [aws_security_group.keycloak_ecs_sg.id]
+  }
 }
 
 resource "aws_security_group" "keycloak_db_sg" {

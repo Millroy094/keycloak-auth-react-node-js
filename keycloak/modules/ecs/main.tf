@@ -18,7 +18,7 @@ resource "aws_ecs_task_definition" "keycloak" {
   container_definitions = jsonencode([
     {
       name   = "keycloak-container"
-      image  = "${data.aws_ecr_image.keycloak_ecr_image.image_uri}"
+      image  = "${data.aws_ecr_image.keycloak_image.image_uri}"
       cpu    = 256
       memory = 512
 
@@ -91,9 +91,6 @@ resource "aws_ecs_task_definition" "keycloak" {
           value = jsonencode(["token-exchange", "account-api", "admin-api"])
         }
       ],
-      command = [
-        "start-dev"
-      ]
     }
   ])
 }
@@ -105,7 +102,7 @@ resource "aws_ecs_service" "keycloak_service" {
   launch_type     = "FARGATE"
 
   load_balancer {
-    target_group_arn = var.keycloak_abl_tg.arn
+    target_group_arn = var.keycloak_alb_tg.arn
     container_name   = "keycloak-container"
     container_port   = 8080
   }

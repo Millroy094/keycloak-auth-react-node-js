@@ -15,9 +15,3 @@ variable "aws_region" {
   description = "The AWS development account region"
   default     = "us-west-2"
 }
-
-variable "s3_keycloak_state_bucket" {
-  type        = string
-  description = "Keycloak State Bucket Name on S3"
-  nullable    = false
-}

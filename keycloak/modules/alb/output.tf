@@ -1,3 +1,7 @@
-output "alb_dns_name" {
-  value = aws_lb.keycloak_alb.dns_name
+output "keycloak_alb" {
+  value = aws_lb.keycloak_alb
+}
+
+output "keycloak_alb_tg" {
+  value = aws_lb_target_group.keycloak_alb_tg
 }

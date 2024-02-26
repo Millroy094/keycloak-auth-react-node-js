@@ -63,7 +63,7 @@ resource "aws_internet_gateway" "keycloak_gateway" {
   }
 }
 
-resource "aws_route_table" "keycloak_routing" {
+resource "aws_route_table" "public_keycloak_routing" {
   vpc_id = aws_vpc.keycloak_vpc.id
 
   route {
@@ -72,14 +72,32 @@ resource "aws_route_table" "keycloak_routing" {
   }
 
   tags = {
-    Name = "Keycloak Net rules"
+    Name = "Public Keycloak Net rules"
   }
 }
 
-resource "aws_route_table_association" "keycloak_subnet_association" {
+resource "aws_route_table_association" "keycloak_alb_subnet_association" {
   count          = 2
   subnet_id      = element(aws_subnet.keycloak_alb_subnet.*.id, count.index)
-  route_table_id = aws_route_table.keycloak_routing.id
+  route_table_id = aws_route_table.public_keycloak_routing.id
 }
 
+resource "aws_route_table" "private_keycloak_routing" {
+  vpc_id = aws_vpc.keycloak_vpc.id
 
+  tags = {
+    Name = "Private Keycloak Net rules"
+  }
+
+}
+resource "aws_route_table_association" "keycloak_ecs_subnet_association" {
+  count          = 2
+  subnet_id      = element(aws_subnet.keycloak_ecs_subnet.*.id, count.index)
+  route_table_id = aws_route_table.private_keycloak_routing.id
+}
+
+resource "aws_route_table_association" "keycloak_db_subnet_association" {
+  count          = 2
+  subnet_id      = element(aws_subnet.keycloak_db_subnet.*.id, count.index)
+  route_table_id = aws_route_table.private_keycloak_routing.id
+}
