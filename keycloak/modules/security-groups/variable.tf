@@ -1,0 +1,1 @@
+variable "keycloak_vpc" {}

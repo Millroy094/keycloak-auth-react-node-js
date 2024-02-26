@@ -1,6 +1,6 @@
 resource "aws_security_group" "keycloak_alb_sg" {
   name   = "keycloak-alb-sg"
-  vpc_id = aws_vpc.auth.id
+  vpc_id = var.keycloak_vpc.id
 
   # Default rule to allow inbound traffic from anywhere on port 8080
   ingress {
@@ -33,10 +33,10 @@ resource "aws_security_group" "keycloak_alb_sg" {
   }
 }
 
-resource "aws_security_group" "keycloak_service_sg" {
-  name        = "keycloak-service-sg"
+resource "aws_security_group" "keycloak_ecs_sg" {
+  name        = "keycloak-ecs-sg"
   description = "Security group for Keycloak ECS service"
-  vpc_id      = aws_vpc.auth.id
+  vpc_id      = var.keycloak_vpc.id
 
   ingress {
     from_port       = 8080
@@ -63,7 +63,7 @@ resource "aws_security_group" "keycloak_service_sg" {
 
 resource "aws_security_group" "keycloak_db_sg" {
   name        = "keycloak-db-sg"
-  vpc_id      = aws_vpc.auth.id
+  vpc_id      = var.keycloak_vpc.id
   description = "Security group for RDS instance"
 
   tags = {
@@ -76,6 +76,6 @@ resource "aws_security_group_rule" "ecs_to_postgres" {
   from_port                = 5432
   to_port                  = 5432
   protocol                 = "tcp"
-  source_security_group_id = aws_security_group.keycloak_service_sg.id
+  source_security_group_id = aws_security_group.keycloak_ecs_sg.id
   security_group_id        = aws_security_group.keycloak_db_sg.id
 }

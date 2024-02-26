@@ -2,8 +2,8 @@ resource "aws_lb" "keycloak_alb" {
   name               = "keycloak-alb"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.keycloak_alb_sg.id]
-  subnets            = aws_subnet.auth_subnet.*.id
+  security_groups    = [var.keycloak_alb_sg.id]
+  subnets            = var.keycloak_alb_subnet.*.id
   ip_address_type    = "dualstack"
 
   tags = {
@@ -18,16 +18,16 @@ resource "aws_lb_listener" "keycloak_alb_listener" {
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.keycloak_abl_tg.arn
+    target_group_arn = aws_lb_target_group.keycloak_alb_tg.arn
   }
 }
 
-resource "aws_lb_target_group" "keycloak_abl_tg" {
-  name        = "keycloak-abl-tg"
+resource "aws_lb_target_group" "keycloak_alb_tg" {
+  name        = "keycloak-alb-tg"
   port        = 8080
   protocol    = "HTTP"
   target_type = "ip"
-  vpc_id      = aws_vpc.auth.id
+  vpc_id      = var.keycloak_vpc.id
   health_check {
     path     = "/health"
     protocol = "HTTP"

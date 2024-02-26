@@ -11,13 +11,25 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Open Tofu
+        uses: opentofu/setup-opentofu@v1
       - name: Configure AWS Credentials
+        id: aws_credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-west-2
+      - name: Create ECR Repository
+        working-directory: "./keycloak"
+        run: |
+          tofu init
+          tofu apply -target=module.ecr -auto-approve
+        env:
+          TF_VAR_access_key: "${{secrets.AWS_ACCESS_KEY_ID}}"
+          TF_VAR_secret_key: "${{secrets.AWS_SECRET_ACCESS_KEY}}"
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
@@ -26,7 +38,7 @@ jobs:
         env:
           DOCKER_TAG_VERSION: ${{steps.login-ecr.outputs.registry}}/keycloak:${{github.event.inputs.version_keycloak}}
         run: |
-          docker build ./infra/registry/container \
+          docker build ./keycloak/ecr/container \
           --tag ${{env.DOCKER_TAG_VERSION}}
           echo "Docker image created: ${{env.DOCKER_TAG_VERSION}}" >> $GITHUB_STEP_SUMMARY
           echo "image=${{env.DOCKER_TAG_VERSION}}" >> $GITHUB_OUTPUT

@@ -1,18 +1,3 @@
-resource "aws_db_instance" "keycloak_db" {
-  engine                 = "postgres"
-  instance_class         = "db.t3.micro"
-  allocated_storage      = 20
-  db_name                = "keycloak"
-  username               = "keycloak"
-  password               = "keycloak"
-  skip_final_snapshot    = true
-  db_subnet_group_name   = aws_db_subnet_group.keycloak_db_subnet_group.name
-  vpc_security_group_ids = [aws_security_group.keycloak_db_sg.id]
-  tags = {
-    Name = "Keycloak DB"
-  }
-}
-
 resource "aws_cloudwatch_log_group" "keycloak_log_group" {
   name = "keycloak-log-group"
 }
@@ -27,15 +12,13 @@ resource "aws_ecs_task_definition" "keycloak" {
   memory                   = "512"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
-  task_role_arn            = aws_iam_role.ecs_task_role.arn
-
-  depends_on = [aws_db_instance.keycloak_db, aws_lb.keycloak_alb]
+  execution_role_arn       = var.ecs_task_execution_role.arn
+  task_role_arn            = var.ecs_task_role.arn
 
   container_definitions = jsonencode([
     {
       name   = "keycloak-container"
-      image  = "quay.io/keycloak/keycloak:latest"
+      image  = "${data.aws_ecr_image.keycloak_ecr_image.image_uri}"
       cpu    = 256
       memory = 512
 
@@ -61,15 +44,15 @@ resource "aws_ecs_task_definition" "keycloak" {
         },
         {
           name  = "KC_DB_URL"
-          value = "jdbc:postgresql://${aws_db_instance.keycloak_db.endpoint}/${aws_db_instance.keycloak_db.db_name}"
+          value = "jdbc:postgresql://${var.keycloak_db.endpoint}/${var.keycloak_db.db_name}"
         },
         {
           name  = "KC_DB_USERNAME"
-          value = "${aws_db_instance.keycloak_db.username}"
+          value = "${var.keycloak_db.username}"
         },
         {
           name  = "KC_DB_PASSWORD"
-          value = aws_db_instance.keycloak_db.password
+          value = var.keycloak_db.password
         },
         {
           name  = "KEYCLOAK_ADMIN"
@@ -101,7 +84,7 @@ resource "aws_ecs_task_definition" "keycloak" {
         },
         {
           name  = "KC_HOSTNAME"
-          value = aws_lb.keycloak_alb.dns_name
+          value = var.keycloak_alb.dns_name
         },
         {
           name  = "KC_FEATURES"
@@ -122,14 +105,14 @@ resource "aws_ecs_service" "keycloak_service" {
   launch_type     = "FARGATE"
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.keycloak_abl_tg.arn
+    target_group_arn = var.keycloak_abl_tg.arn
     container_name   = "keycloak-container"
     container_port   = 8080
   }
 
   network_configuration {
-    subnets         = aws_subnet.auth_ecs_subnet.*.id
-    security_groups = [aws_security_group.keycloak_service_sg.id]
+    subnets         = var.keycloak_ecs_subnet.*.id
+    security_groups = [var.keycloak_ecs_sg.id]
   }
 
   desired_count = 1
