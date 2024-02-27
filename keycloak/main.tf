@@ -60,3 +60,11 @@ module "ecs" {
   keycloak_log_group      = module.log_groups.keycloak_log_group
   depends_on              = [module.ecr.keycloak, module.db.keycloak_db, module.alb.keycloak_alb, module.alb.keycloak_alb_tg, module.log_groups.keycloak_log_group]
 }
+
+module "auto_scaling" {
+  source           = "./modules/auto-scaling"
+  keycloak_cluster = module.ecs.keycloak_cluster
+  keycloak_service = module.ecs.keycloak_service
+
+  depends_on = [module.ecs.keycloak_cluster, module.ecs.keycloak_service]
+}
