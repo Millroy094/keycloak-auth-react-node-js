@@ -59,10 +59,6 @@ resource "aws_ecs_task_definition" "keycloak" {
           value = "admin"
         },
         {
-          name  = "KEYCLOAK_PASSWORD"
-          value = "password123!"
-        },
-        {
           name  = "KC_HOSTNAME_STRICT"
           value = jsonencode(false)
         },
