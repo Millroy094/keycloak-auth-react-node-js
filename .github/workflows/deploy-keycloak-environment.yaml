@@ -22,7 +22,7 @@ jobs:
           aws-region: us-west-2
       - name: Setup Open Tofu
         uses: opentofu/setup-opentofu@v1
-      - name: Create ECR Repository
+      - name: Provision ECR Repository
         working-directory: "./keycloak"
         run: |
           tofu init --backend-config="bucket=${{vars.AWS_TERRAFORM_STATE_BUCKET_NAME}}" --backend-config="key=${{vars.AWS_TERRAFORM_STATE_KEY}}.tfstate"
@@ -44,7 +44,7 @@ jobs:
           echo "image=${{env.DOCKER_TAG_VERSION}}" >> $GITHUB_OUTPUT
       - name: Docker Publish ECR
         run: docker push ${{steps.docker-build.outputs.image}}
-      - name: Create Rest of the Infrastructure
+      - name: Provision Keycloak Infrastructure
         working-directory: "./keycloak"
         run: |
           tofu init --backend-config="bucket=${{vars.AWS_TERRAFORM_STATE_BUCKET_NAME}}" --backend-config="key=${{vars.AWS_TERRAFORM_STATE_KEY}}.tfstate"
