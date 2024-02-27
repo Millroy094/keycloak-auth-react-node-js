@@ -12,5 +12,4 @@ COPY --from=builder /opt/keycloak/ /opt/keycloak/
 
 WORKDIR /opt/keycloak
 
-# configuring email listener to send emails for specific events
-ENTRYPOINT ["/opt/keycloak/bin/kc.sh", "start --optimized"]
+ENTRYPOINT ["/opt/keycloak/bin/kc.sh"]
