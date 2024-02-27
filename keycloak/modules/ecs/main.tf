@@ -91,6 +91,9 @@ resource "aws_ecs_task_definition" "keycloak" {
           value = jsonencode(["token-exchange", "account-api", "admin-api"])
         }
       ],
+      command = [
+        "start --optimized"
+      ]
     }
   ])
 }
