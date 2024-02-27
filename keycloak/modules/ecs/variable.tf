@@ -6,3 +6,4 @@ variable "keycloak_alb" {}
 variable "keycloak_alb_tg" {}
 variable "keycloak_ecs_subnet" {}
 variable "keycloak_ecs_sg" {}
+variable "keycloak_log_group" {}

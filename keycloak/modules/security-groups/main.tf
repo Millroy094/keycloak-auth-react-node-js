@@ -61,7 +61,6 @@ resource "aws_security_group" "keycloak_ecs_sg" {
   }
 
 }
-
 resource "aws_security_group" "keycloak_vpc_endpoint_sg" {
   name_prefix = "keycloak-vpc-endpoint-sg"
   description = "Associated to ECR/S3 VPC Endpoints"

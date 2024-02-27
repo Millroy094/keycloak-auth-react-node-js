@@ -37,7 +37,9 @@ resource "aws_iam_policy" "ecs_task_execution_policy" {
           "ecr:GetRepositoryPolicy",
           "ecr:InitiateLayerUpload",
           "ecr:UploadLayerPart",
-          "ecr:CompleteLayerUpload"
+          "ecr:CompleteLayerUpload",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
       ],
       "Resource": "*"
     }

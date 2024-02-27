@@ -1,7 +1,3 @@
-resource "aws_cloudwatch_log_group" "keycloak_log_group" {
-  name = "keycloak-log-group"
-}
-
 resource "aws_ecs_cluster" "keycloak_cluster" {
   name = "keycloak-cluster"
 }
@@ -32,7 +28,7 @@ resource "aws_ecs_task_definition" "keycloak" {
       logConfiguration = {
         logDriver = "awslogs"
         options = {
-          "awslogs-group"         = "${aws_cloudwatch_log_group.keycloak_log_group.name}"
+          "awslogs-group"         = "${var.keycloak_log_group.name}"
           "awslogs-region"        = var.aws_region
           "awslogs-stream-prefix" = "ecs"
         }
@@ -88,11 +84,11 @@ resource "aws_ecs_task_definition" "keycloak" {
         },
         {
           name  = "KC_FEATURES"
-          value = jsonencode(["token-exchange", "account-api", "admin-api"])
+          value = "token-exchange,account-api,admin-api"
         }
       ],
       command = [
-        "start --optimized"
+        "start-dev"
       ]
     }
   ])
