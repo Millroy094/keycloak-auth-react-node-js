@@ -4,8 +4,8 @@ resource "aws_ecs_cluster" "keycloak_cluster" {
 
 resource "aws_ecs_task_definition" "keycloak" {
   family                   = "keycloak"
-  cpu                      = "256"
-  memory                   = "512"
+  cpu                      = "2048"
+  memory                   = "1024"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   execution_role_arn       = var.ecs_task_execution_role.arn
@@ -15,8 +15,8 @@ resource "aws_ecs_task_definition" "keycloak" {
     {
       name   = "keycloak-container"
       image  = "${data.aws_ecr_image.keycloak_image.image_uri}"
-      cpu    = 256
-      memory = 512
+      cpu    = 2048
+      memory = 1024
 
       essential = true
       portMappings = [

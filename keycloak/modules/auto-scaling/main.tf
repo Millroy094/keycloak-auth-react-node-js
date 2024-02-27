@@ -17,6 +17,6 @@ resource "aws_appautoscaling_policy" "keycloak_ecs_scaling_policy" {
     predefined_metric_specification {
       predefined_metric_type = "ECSServiceAverageCPUUtilization"
     }
-    target_value = 50.0
+    target_value = 80.0
   }
 }
