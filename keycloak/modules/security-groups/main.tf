@@ -1,8 +1,6 @@
 resource "aws_security_group" "keycloak_alb_sg" {
   name   = "keycloak-alb-sg"
   vpc_id = var.keycloak_vpc.id
-
-  # Default rule to allow inbound traffic from anywhere on port 8080
   ingress {
     from_port   = 80
     to_port     = 80
@@ -16,8 +14,6 @@ resource "aws_security_group" "keycloak_alb_sg" {
     protocol         = "tcp"
     ipv6_cidr_blocks = ["::/0"]
   }
-
-  # Default rule to allow all outbound traffic
   egress {
     from_port   = 0
     to_port     = 0
@@ -44,8 +40,6 @@ resource "aws_security_group" "keycloak_ecs_sg" {
     protocol        = "tcp"
     security_groups = [aws_security_group.keycloak_alb_sg.id]
   }
-
-  # Default rule to allow all outbound traffic
   egress {
     from_port   = 0
     to_port     = 0
