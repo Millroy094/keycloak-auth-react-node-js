@@ -30,6 +30,8 @@ jobs:
         env:
           TF_VAR_access_key: "${{secrets.AWS_ACCESS_KEY_ID}}"
           TF_VAR_secret_key: "${{secrets.AWS_SECRET_ACCESS_KEY}}"
+          TF_VAR_keycloak_admin_password: "${{vars.KEYCLOAK_ADMIN_PASSWORD}}"
+
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
@@ -52,3 +54,4 @@ jobs:
         env:
           TF_VAR_access_key: "${{secrets.AWS_ACCESS_KEY_ID}}"
           TF_VAR_secret_key: "${{secrets.AWS_SECRET_ACCESS_KEY}}"
+          TF_VAR_keycloak_admin_password: "${{vars.KEYCLOAK_ADMIN_PASSWORD}}"
