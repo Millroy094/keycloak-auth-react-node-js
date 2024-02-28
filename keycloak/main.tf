@@ -50,6 +50,7 @@ module "ecr" {
 module "ecs" {
   source                  = "./modules/ecs"
   aws_region              = var.aws_region
+  keycloak_admin_password = var.keycloak_admin_password
   ecs_task_execution_role = module.iam.ecs_task_execution_role
   ecs_task_role           = module.iam.ecs_task_role
   keycloak_ecs_subnet     = module.vpc.keycloak_ecs_subnet

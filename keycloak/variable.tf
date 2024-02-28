@@ -15,3 +15,10 @@ variable "aws_region" {
   description = "The AWS development account region"
   default     = "us-west-2"
 }
+
+variable "keycloak_admin_password" {
+  type        = string
+  description = "Keycloak Admin Password"
+  default     = ""
+}
+
